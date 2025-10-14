@@ -1,4 +1,6 @@
 Flask
 numpy
 scikit-learn
+pyserial
+requests
 gunicorn
