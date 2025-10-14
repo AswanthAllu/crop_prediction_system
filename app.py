@@ -1,91 +1,83 @@
-from flask import Flask, render_template, request, jsonify
-import pickle
-import numpy as np
-import os
-import json
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Farming Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Your CSS styles remain the same */
+        body { font-family: 'Roboto', sans-serif; /* ... */ }
+    </style>
+</head>
+<body class="text-gray-800">
 
-app = Flask(__name__)
+    <div class="container mx-auto p-4 md:p-6 max-w-6xl">
+        <header class="text-center mb-6">
+            <h1 class="text-4xl md:text-5xl font-bold text-green-800">Smart Farming Assistant</h1>
+            <p class="text-lg text-gray-600 mt-2">Live Sensor Data & Intelligent Crop Recommendations</p>
+        </header>
 
-# --- Load ML Model and the new Multi-Lingual Crop Database ---
-model = None
-crop_database = {}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="card p-5 rounded-xl shadow-md flex items-center space-x-4">
+                <div class="p-3 bg-red-100 rounded-full"><img src="https://img.icons8.com/fluency/48/temperature.png" alt="temperature" class="w-8 h-8"/></div>
+                <div><h2 class="text-lg font-semibold text-gray-600">Temperature</h2><p id="temperature" class="text-2xl font-bold">{{ initial_data.temperature|round(2) }} °C</p></div>
+            </div>
+            <div class="card p-5 rounded-xl shadow-md flex items-center space-x-4">
+                <div class="p-3 bg-blue-100 rounded-full"><img src="https://img.icons8.com/fluency/48/hygrometer.png" alt="humidity" class="w-8 h-8"/></div>
+                <div><h2 class="text-lg font-semibold text-gray-600">Humidity</h2><p id="humidity" class="text-2xl font-bold">{{ initial_data.humidity|round(2) }} %</p></div>
+            </div>
+            <div class="card p-5 rounded-xl shadow-md flex items-center space-x-4">
+                <div class="p-3 bg-yellow-100 rounded-full"><img src="https://img.icons8.com/fluency/48/ph.png" alt="ph-value" class="w-8 h-8"/></div>
+                <div><h2 class="text-lg font-semibold text-gray-600">Soil pH</h2><p id="ph" class="text-2xl font-bold">{{ initial_data.ph|round(2) }}</p></div>
+            </div>
+            <div class="card p-5 rounded-xl shadow-md flex items-center space-x-4">
+                <div class="p-3 bg-green-100 rounded-full"><img src="https://img.icons8.com/fluency/48/rainfall.png" alt="rainfall" class="w-8 h-8"/></div>
+                <div><h2 class="text-lg font-semibold text-gray-600">Rainfall Proxy</h2><p id="rainfall" class="text-2xl font-bold">{{ initial_data.rainfall|round(2) }} mm</p></div>
+            </div>
+        </div>
 
-try:
-    with open('crop_model.pkl', 'rb') as model_file:
-        model = pickle.load(model_file)
-    print("Model loaded successfully.")
-except Exception as e:
-    print(f"Error loading model: {e}")
+        <div class="card text-center p-8 rounded-2xl shadow-lg bg-white">
+            <h2 class="text-2xl font-semibold mb-2 text-gray-700">Recommended Crop</h2>
+            <p id="prediction" class="text-5xl font-bold text-green-600 tracking-wider mb-4">{{ initial_data.prediction }}</p>
+            <button id="guide-button" class="hidden bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-green-700 transition-transform transform hover:scale-105">
+                View Farming Guide
+            </button>
+        </div>
+    </div>
 
-try:
-    # Load the new, detailed, multi-lingual database file, ensuring UTF-8 encoding
-    with open('crop_database.json', 'r', encoding='utf-8') as db_file:
-        crop_database = json.load(db_file)
-    print("Multi-lingual crop database loaded successfully.")
-except Exception as e:
-    print(f"Error loading crop database: {e}")
+    <script>
+        // The JavaScript for fetching live updates remains exactly the same.
+        // It will continue to run every 3 seconds to get new data.
+        async function updateDashboard() {
+            try {
+                const response = await fetch('/get_data');
+                const data = await response.json();
 
-# --- Global variable for latest data ---
-latest_data = {
-    "temperature": 0, "humidity": 0, "ph": 0, "rainfall": 0,
-    "prediction": "Waiting for data..."
-}
+                document.getElementById('temperature').textContent = `${data.temperature.toFixed(2)} °C`;
+                document.getElementById('humidity').textContent = `${data.humidity.toFixed(2)} %`;
+                document.getElementById('ph').textContent = data.ph.toFixed(2);
+                document.getElementById('rainfall').textContent = `${data.rainfall.toFixed(2)} mm`;
+                
+                const currentPrediction = data.prediction;
+                document.getElementById('prediction').textContent = currentPrediction;
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+                const isWaiting = currentPrediction.toLowerCase().includes('waiting') || currentPrediction.toLowerCase().includes('n/a');
+                document.getElementById('guide-button').classList.toggle('hidden', isWaiting);
 
-@app.route('/update_data', methods=['POST'])
-def update_data():
-    global latest_data
-    data = request.get_json()
-    
-    try:
-        temp = float(data['temperature'])
-        humidity = float(data['humidity'])
-        ph = float(data['ph'])
-        rainfall = float(data['rainfall'])
-
-        predicted_crop = "N/A"
-        if model:
-            features = np.array([[temp, humidity, ph, rainfall]])
-            prediction_result = model.predict(features)
-            predicted_crop = prediction_result[0]
-        else:
-            predicted_crop = "Model not loaded"
-
-        latest_data = {
-            "temperature": temp,
-            "humidity": humidity,
-            "ph": ph,
-            "rainfall": rainfall,
-            "prediction": predicted_crop.capitalize()
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                document.getElementById('prediction').textContent = 'Connection Error';
+            }
         }
-        return jsonify({"status": "success", "prediction": predicted_crop.capitalize()})
-    except Exception as e:
-        print(f"Error processing data: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-@app.route('/get_data')
-def get_data():
-    return jsonify(latest_data)
-
-# --- This endpoint now serves the full multi-lingual data for a crop ---
-@app.route('/get_crop_info/<crop_name>')
-def get_crop_info(crop_name):
-    crop_name_lower = crop_name.lower()
-    # Fetch info from the loaded database, provide a default if not found
-    crop_info = crop_database.get(crop_name_lower, {
-        "en": {
-            "description": "No detailed information available for this crop.",
-            "fertilizers": [{"stage": "N/A", "recommendation": "N/A"}],
-            "pesticides": [{"problem": "N/A", "chemical": "N/A", "dosage_per_acre": "N/A", "application": "N/A"}],
-            "image_url": "https://i.imgur.com/gimmyS2.png" # A placeholder image
-        }
-    })
-    return jsonify(crop_info)
-
-if __name__ == '__main__':
-    # For production, debug should be False. 
-    # Render will set the host and port.
-    app.run(host='0.0.0.0', port=5001, debug=False)
+        
+        // The rest of your JavaScript remains the same...
+        
+        // Initial Call & Interval
+        // We call it once to ensure the guide button visibility is set correctly on load
+        updateDashboard(); 
+        setInterval(updateDashboard, 3000); // Continue to poll every 3 seconds
+    </script>
+</body>
+</html>
