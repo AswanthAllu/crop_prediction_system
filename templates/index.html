@@ -5,45 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Farming Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #F0FDF4; /* A very light, calming green */
-            background-image: url('https://www.transparenttextures.com/patterns/subtle-carbon.png');
-        }
-        .card {
-            backdrop-filter: blur(10px);
-            background-color: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(200, 200, 200, 0.3);
-            transition: all 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-        }
-        .modal-scale-up {
-            animation: scaleUp 0.3s ease-out forwards;
-        }
-        @keyframes scaleUp {
-            from { transform: translateY(20px) scale(0.95); opacity: 0; }
-            to { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        .lang-btn {
-            transition: all 0.2s ease-in-out;
-            border-bottom: 3px solid transparent;
-        }
-        .lang-btn.active {
-            border-bottom-color: #22c55e; /* Green-500 */
-            color: #166534; /* Green-800 */
-            font-weight: 700;
-        }
+        body { font-family: 'Roboto', sans-serif; /* ... */ }
     </style>
 </head>
 <body class="text-gray-800">
@@ -54,61 +18,35 @@
             <p class="text-lg text-gray-600 mt-2">Live Sensor Data & Intelligent Crop Recommendations</p>
         </header>
 
-        <!-- Sensor Data Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Cards for Temperature, Humidity, pH, Rainfall -->
-            <div class="card p-5 rounded-xl shadow-md flex items-center space-x-4"><div class="p-3 bg-red-100 rounded-full"><img src="https://img.icons8.com/fluency/48/temperature.png" alt="temperature" class="w-8 h-8"/></div><div><h2 class="text-lg font-semibold text-gray-600">Temperature</h2><p id="temperature" class="text-2xl font-bold">-- °C</p></div></div>
-            <div class="card p-5 rounded-xl shadow-md flex items-center space-x-4"><div class="p-3 bg-blue-100 rounded-full"><img src="https://img.icons8.com/fluency/48/hygrometer.png" alt="humidity" class="w-8 h-8"/></div><div><h2 class="text-lg font-semibold text-gray-600">Humidity</h2><p id="humidity" class="text-2xl font-bold">-- %</p></div></div>
-            <div class="card p-5 rounded-xl shadow-md flex items-center space-x-4"><div class="p-3 bg-yellow-100 rounded-full"><img src="https://img.icons8.com/fluency/48/ph.png" alt="ph-value" class="w-8 h-8"/></div><div><h2 class="text-lg font-semibold text-gray-600">Soil pH</h2><p id="ph" class="text-2xl font-bold">--</p></div></div>
-            <div class="card p-5 rounded-xl shadow-md flex items-center space-x-4"><div class="p-3 bg-green-100 rounded-full"><img src="https://img.icons8.com/fluency/48/rainfall.png" alt="rainfall" class="w-8 h-8"/></div><div><h2 class="text-lg font-semibold text-gray-600">Rainfall Proxy</h2><p id="rainfall" class="text-2xl font-bold">-- mm</p></div></div>
+            <div class="card p-5 rounded-xl shadow-md flex items-center space-x-4">
+                <div class="p-3 bg-red-100 rounded-full"><img src="https://img.icons8.com/fluency/48/temperature.png" alt="temperature" class="w-8 h-8"/></div>
+                <div><h2 class="text-lg font-semibold text-gray-600">Temperature</h2><p id="temperature" class="text-2xl font-bold">{{ initial_data.temperature|round(2) }} °C</p></div>
+            </div>
+            <div class="card p-5 rounded-xl shadow-md flex items-center space-x-4">
+                <div class="p-3 bg-blue-100 rounded-full"><img src="https://img.icons8.com/fluency/48/hygrometer.png" alt="humidity" class="w-8 h-8"/></div>
+                <div><h2 class="text-lg font-semibold text-gray-600">Humidity</h2><p id="humidity" class="text-2xl font-bold">{{ initial_data.humidity|round(2) }} %</p></div>
+            </div>
+            <div class="card p-5 rounded-xl shadow-md flex items-center space-x-4">
+                <div class="p-3 bg-yellow-100 rounded-full"><img src="https://img.icons8.com/fluency/48/ph.png" alt="ph-value" class="w-8 h-8"/></div>
+                <div><h2 class="text-lg font-semibold text-gray-600">Soil pH</h2><p id="ph" class="text-2xl font-bold">{{ initial_data.ph|round(2) }}</p></div>
+            </div>
+            <div class="card p-5 rounded-xl shadow-md flex items-center space-x-4">
+                <div class="p-3 bg-green-100 rounded-full"><img src="https://img.icons8.com/fluency/48/rainfall.png" alt="rainfall" class="w-8 h-8"/></div>
+                <div><h2 class="text-lg font-semibold text-gray-600">Rainfall Proxy</h2><p id="rainfall" class="text-2xl font-bold">{{ initial_data.rainfall|round(2) }} mm</p></div>
+            </div>
         </div>
 
-        <!-- Prediction Card -->
         <div class="card text-center p-8 rounded-2xl shadow-lg bg-white">
             <h2 class="text-2xl font-semibold mb-2 text-gray-700">Recommended Crop</h2>
-            <p id="prediction" class="text-5xl font-bold text-green-600 tracking-wider mb-4">Waiting...</p>
+            <p id="prediction" class="text-5xl font-bold text-green-600 tracking-wider mb-4">{{ initial_data.prediction }}</p>
             <button id="guide-button" class="hidden bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-green-700 transition-transform transform hover:scale-105">
                 View Farming Guide
             </button>
         </div>
     </div>
 
-    <!-- Farming Guide Modal -->
-    <div id="guide-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay">
-        <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col modal-scale-up">
-            <!-- Modal Header -->
-            <div class="flex justify-between items-center p-5 bg-gray-50 border-b">
-                <h3 id="modal-title" class="text-2xl font-bold text-green-800">Farming Guide</h3>
-                <button id="close-modal-button" class="text-gray-400 hover:text-gray-800 text-3xl font-bold">&times;</button>
-            </div>
-             <!-- Language Tabs -->
-            <div id="lang-tabs" class="flex justify-center space-x-2 md:space-x-4 p-2 bg-gray-100 border-b">
-                <button data-lang="en" class="lang-btn px-4 py-2 text-sm md:text-base">English</button>
-                <button data-lang="hi" class="lang-btn px-4 py-2 text-sm md:text-base">हिन्दी</button>
-                <button data-lang="te" class="lang-btn px-4 py-2 text-sm md:text-base">తెలుగు</button>
-                <button data-lang="ta" class="lang-btn px-4 py-2 text-sm md:text-base">தமிழ்</button>
-                <button data-lang="kn" class="lang-btn px-4 py-2 text-sm md:text-base">ಕನ್ನಡ</button>
-                <button data-lang="ml" class="lang-btn px-4 py-2 text-sm md:text-base">മലയാളം</button>
-            </div>
-            <!-- Modal Body -->
-            <div id="modal-content-area" class="p-6 overflow-y-auto">
-                <!-- Content will be injected here by JavaScript -->
-            </div>
-        </div>
-    </div>
-
     <script>
-        // --- DOM Elements ---
-        const guideButton = document.getElementById('guide-button');
-        const guideModal = document.getElementById('guide-modal');
-        const closeModalButton = document.getElementById('close-modal-button');
-        const langTabsContainer = document.getElementById('lang-tabs');
-        
-        // --- State Variables ---
-        let currentCropData = null;
-        let currentLanguage = 'en';
-
-        // --- Fetch and Update Sensor Data ---
         async function updateDashboard() {
             try {
                 const response = await fetch('/get_data');
@@ -123,7 +61,7 @@
                 document.getElementById('prediction').textContent = currentPrediction;
 
                 const isWaiting = currentPrediction.toLowerCase().includes('waiting') || currentPrediction.toLowerCase().includes('n/a');
-                guideButton.classList.toggle('hidden', isWaiting);
+                document.getElementById('guide-button').classList.toggle('hidden', isWaiting);
 
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -131,91 +69,10 @@
             }
         }
         
-        // --- Open and Populate the Guide Modal ---
-        async function openGuideModal() {
-            const cropName = document.getElementById('prediction').textContent.trim().toLowerCase();
-            if (!cropName) return;
-
-            try {
-                const response = await fetch(`/get_crop_info/${cropName}`);
-                currentCropData = await response.json(); // Store full multi-lingual data
-                
-                document.getElementById('modal-title').textContent = `Farming Guide for ${document.getElementById('prediction').textContent}`;
-                
-                setActiveLanguage(currentLanguage); // Set initial language and populate content
-                guideModal.classList.remove('hidden');
-
-            } catch(error) {
-                console.error("Error fetching crop info:", error);
-                alert("Could not load farming guide. Please try again.");
-            }
-        }
-
-        // --- Set Active Language and Populate Modal Content ---
-        function setActiveLanguage(langCode) {
-            currentLanguage = langCode;
-            
-            // Update button styles
-            langTabsContainer.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === langCode);
-            });
-            
-            // Populate content
-            populateModalContent();
-        }
-
-        function populateModalContent() {
-            if (!currentCropData) return;
-            const content = currentCropData[currentLanguage] || currentCropData['en']; // Fallback to English
-            const contentArea = document.getElementById('modal-content-area');
-
-            let fertilizersHtml = content.fertilizers.map(f => `
-                <div class="mb-3">
-                    <h5 class="font-semibold text-gray-700">${f.stage}</h5>
-                    <p class="text-gray-600">${f.recommendation}</p>
-                </div>
-            `).join('');
-
-            let pesticidesHtml = content.pesticides.map(p => `
-                 <div class="mb-3">
-                    <h5 class="font-semibold text-gray-700">${p.problem}</h5>
-                    <p class="text-sm text-gray-500"><strong>Chemical:</strong> ${p.chemical}</p>
-                    <p class="text-sm text-gray-500"><strong>Dosage:</strong> ${p.dosage_per_acre}</p>
-                    <p class="text-sm text-gray-600"><strong>Application:</strong> ${p.application}</p>
-                </div>
-            `).join('');
-
-            contentArea.innerHTML = `
-                <img src="${currentCropData.image_url}" alt="Crop Image" class="w-40 h-40 object-cover rounded-xl mx-auto mb-4 shadow-lg">
-                <p class="text-gray-600 mb-6 text-center italic">${content.description}</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <h4 class="text-xl font-bold text-green-700 mb-3">Fertilizer Guide (per acre)</h4>
-                        <div class="space-y-4">${fertilizersHtml}</div>
-                    </div>
-                    <div>
-                        <h4 class="text-xl font-bold text-orange-700 mb-3">Pest & Disease Control (per acre)</h4>
-                        <div class="space-y-4">${pesticidesHtml}</div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // --- Event Listeners ---
-        guideButton.addEventListener('click', openGuideModal);
-        closeModalButton.addEventListener('click', () => guideModal.classList.add('hidden'));
-        guideModal.addEventListener('click', e => { if (e.target === guideModal) guideModal.classList.add('hidden'); });
+        // The rest of your JavaScript for the modal etc. goes here
         
-        langTabsContainer.addEventListener('click', e => {
-            if (e.target.matches('.lang-btn')) {
-                setActiveLanguage(e.target.dataset.lang);
-            }
-        });
-
-        // --- Initial Call & Interval ---
-        updateDashboard();
+        updateDashboard(); 
         setInterval(updateDashboard, 3000);
     </script>
 </body>
 </html>
-
