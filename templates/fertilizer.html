@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Crop Guide</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
+            --text-light: #f1f5f9;
+            --accent-green: #22c55e;
+            --accent-gold: #fbbf24;
+            --danger-red: #ef4444;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            padding: 60px 0 40px;
+            text-align: center;
+            border-bottom: 2px solid #334155;
+        }
+
+        .crop-img {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            padding: 10px;
+            border: 3px solid var(--accent-green);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+            margin-bottom: 20px;
+        }
+
+        /* Language Tabs */
+        .lang-btn {
+            background: transparent;
+            border: 1px solid #475569;
+            color: #94a3b8;
+            margin: 0 5px;
+            border-radius: 20px;
+            padding: 5px 15px;
+            transition: all 0.3s;
+        }
+        .lang-btn:hover, .lang-btn.active {
+            background: var(--accent-green);
+            color: white;
+            border-color: var(--accent-green);
+            transform: translateY(-2px);
+        }
+
+        /* Cards */
+        .info-card {
+            background: var(--card-dark);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            color: var(--accent-green);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--accent-green);
+            padding-left: 15px;
+        }
+
+        /* Fertilizer Timeline Style */
+        .fert-item {
+            border-left: 2px dashed #475569;
+            padding-left: 20px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+        .fert-item::before {
+            content: '\f4d8'; /* Seedling Icon */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: -16px;
+            top: 0;
+            background: var(--card-dark);
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+        }
+        .fert-stage { color: var(--accent-gold); font-weight: bold; font-size: 1.1rem; }
+        .fert-desc { color: #cbd5e1; margin-top: 5px; }
+
+        /* Pesticide Warning Style */
+        .pest-item {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger-red);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .pest-name { color: var(--danger-red); font-weight: bold; font-size: 1.1rem; }
+        .pest-chem { font-weight: bold; color: white; }
+
+        .back-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--accent-green);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.5);
+            text-decoration: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero-section">
+        <div class="container">
+            <img id="crop-image" src="" alt="Crop" class="crop-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/188/188333.png'">
+            <h1 class="display-4 fw-bold mb-2" id="crop-title">Loading...</h1>
+            <p class="lead text-muted" id="crop-desc">Select your language below</p>
+            
+            <div class="mt-4" id="lang-container">
+                <button class="lang-btn active" onclick="setLang('en')">English</button>
+                <button class="lang-btn" onclick="setLang('hi')">हिंदी (Hindi)</button>
+                <button class="lang-btn" onclick="setLang('te')">తెలుగు (Telugu)</button>
+                <button class="lang-btn" onclick="setLang('ta')">தமிழ் (Tamil)</button>
+                <button class="lang-btn" onclick="setLang('kn')">ಕನ್ನಡ (Kannada)</button>
+                <button class="lang-btn" onclick="setLang('ml')">മലയാളം (Malayalam)</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="info-card h-100">
+                    <h3 class="section-title"><i class="fas fa-flask me-2"></i> Nutrient Management</h3>
+                    <div id="fertilizer-list">
+                        </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="info-card h-100">
+                    <h3 class="section-title" style="border-color: var(--danger-red); color: var(--danger-red);">
+                        <i class="fas fa-shield-virus me-2"></i> Disease & Pest Control
+                    </h3>
+                    <div id="pesticide-list">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="/" class="back-btn"><i class="fas fa-home"></i></a>
+
+    <script>
+        // 1. YOUR FULL DATABASE
+        const cropDB = {
+            "rice": {
+                "image_url": "https://cdn-icons-png.flaticon.com/512/2829/2829824.png",
+                "en": { "description": "Rice is a staple food crop, requiring significant water and specific nutrient management for high yields. Proper care can prevent common pests and diseases.", "fertilizers": [ { "stage": "Basal Dose (at transplanting)", "recommendation": "Apply 25 kg of Urea, 150 kg of Single Super Phosphate (SSP), and 40 kg of Muriate of Potash (MOP) per acre." }, { "stage": "Top Dressing (25-30 days after)", "recommendation": "Apply 40 kg of Urea per acre." }, { "stage": "Panicle Initiation Stage (50-55 days after)", "recommendation": "Apply 40 kg of Urea and 25 kg of MOP per acre." } ], "pesticides": [ { "problem": "Stem Borer", "chemical": "Cartap Hydrochloride 4% GR", "dosage_per_acre": "8-10 kg", "application": "Broadcast the granules uniformly in the field with 2-3 inches of standing water." }, { "problem": "Brown Plant Hopper (BPH)", "chemical": "Pymetrozine 50% WG", "dosage_per_acre": "120 g", "application": "Mix with 200 liters of water and spray thoroughly, focusing on the base of the plants." } ] },
+                "hi": { "description": "चावल एक मुख्य खाद्य फसल है, जिसे अधिक उपज के लिए पर्याप्त पानी और विशिष्ट पोषक तत्व प्रबंधन की आवश्यकता होती है।", "fertilizers": [ { "stage": "बुनियादी खुराक (रोपाई के समय)", "recommendation": "प्रति एकड़ 25 किलो यूरिया, 150 किलो सिंगल सुपर फॉस्फेट (SSP), और 40 किलो म्यूरेट ऑफ पोटाश (MOP) डालें।" }, { "stage": "टॉप ड्रेसिंग (25-30 दिन बाद)", "recommendation": "प्रति एकड़ 40 किलो यूरिया डालें।" }, { "stage": "पैनीकल बनने की अवस्था (50-55 दिन बाद)", "recommendation": "प्रति एकड़ 40 किलो यूरिया और 25 किलो MOP डालें।" } ], "pesticides": [ { "problem": "तना छेदक", "chemical": "कार्टैप हाइड्रोक्लोराइड 4% जीआर", "dosage_per_acre": "8-10 किलो", "application": "खेत में 2-3 इंच खड़े पानी के साथ दानों को समान रूप से प्रसारित करें।" }, { "problem": "ब्राउन प्लांट हॉपर (BPH)", "chemical": "पाइमेट्रोज़िन 50% डब्ल्यूजी", "dosage_per_acre": "120 ग्राम", "application": "200 लीटर पानी में मिलाकर अच्छी तरह से छिड़काव करें, पौधों के आधार पर ध्यान केंद्रित करें।" } ] },
+                "te": { "description": "వరి ఒక ప్రధాన ఆహార పంట, దీనికి అధిక దిగుబడి కోసం గణనీయమైన నీరు మరియు నిర్దిష్ట పోషక నిర్వహణ అవసరం.", "fertilizers": [ { "stage": "అడుగు మందు (నాట్లు వేసేటప్పుడు)", "recommendation": "ఎకరానికి 25 కిలోల యూరియా, 150 కిలోల సింగిల్ సూపర్ ఫాస్ఫేట్ (SSP), మరియు 40 కిలోల మ్యూరేట్ ఆఫ్ పొటాష్ (MOP) వేయాలి." }, { "stage": "పైపాటు (25-30 రోజుల తర్వాత)", "recommendation": "ఎకరానికి 40 కిలోల యూరియా వేయాలి." }, { "stage": "కంకి దశ (50-55 రోజుల తర్వాత)", "recommendation": "ఎకరానికి 40 కిలోల యూరియా మరియు 25 కిలోల MOP వేయాలి." } ], "pesticides": [ { "problem": "కాండం తొలిచే పురుగు", "chemical": "కార్టాప్ హైడ్రోక్లోరైడ్ 4% జిఆర్", "dosage_per_acre": "8-10 కిలోలు", "application": "పొలంలో 2-3 అంగుళాల నిలబడిన నీటితో గుళికలను సమానంగా చల్లాలి।" }, { "problem": "గోధుమ రంగు దోమ (BPH)", "chemical": "పైమెట్రోజైన్ 50% డబ్ల్యుజి", "dosage_per_acre": "120 గ్రాములు", "application": "200 లీటర్ల నీటిలో కలిపి, మొక్కల మొదళ్ళపై దృష్టి పెట్టి బాగా పిచికారీ చేయాలి।" } ] },
+                "ta": { "description": "நெல் ஒரு முக்கிய உணவுப் பயிர், அதிக மகசூலுக்கு கணிசமான நீர் மற்றும் குறிப்பிட்ட ஊட்டச்சத்து மேலாண்மை தேவைப்படுகிறது.", "fertilizers": [ { "stage": "அடி உரம் (நடவு செய்யும் போது)", "recommendation": "ஒரு ஏக்கருக்கு 25 கிலோ யூரியா, 150 கிலோ சிங்கிள் சூப்பர் பாஸ்பேட் (SSP), மற்றும் 40 கிலோ மியூரேட் ஆஃப் பொட்டாஷ் (MOP) இடவும்." }, { "stage": "மேல் உரம் (25-30 நாட்களுக்குப் பிறகு)", "recommendation": "ஒரு ஏக்கருக்கு 40 கிலோ யூரியா இடவும்." }, { "stage": "கதிர் வரும் பருவம் (50-55 நாட்களுக்குப் பிறகு)", "recommendation": "ஒரு ஏக்கருக்கு 40 கிலோ யூரியா மற்றும் 25 கிலோ MOP இடவும்." } ], "pesticides": [ { "problem": "தண்டு துளைப்பான்", "chemical": "கார்டாப் ஹைட்ரோகுளோரைடு 4% ஜிஆர்", "dosage_per_acre": "8-10 கிலோ", "application": "வயலில் 2-3 அங்குல நின்ற நீரில் குருணைகளை சீராக தூவவும்." }, { "problem": "பழுப்பு தத்துப்பூச்சி (BPH)", "chemical": "பைமெட்ரோசைன் 50% டபிள்யூஜி", "dosage_per_acre": "120 கிராம்", "application": "200 லிட்டர் தண்ணீரில் கலந்து, செடிகளின் அடிப்பகுதியில் கவனம் செலுத்தி நன்கு தெளிக்கவும்." } ] },
+                "kn": { "description": "ಭತ್ತವು ಪ್ರಮುಖ ಆಹಾರ ಬೆಳೆಯಾಗಿದ್ದು, ಹೆಚ್ಚಿನ ಇಳುವರಿಗಾಗಿ ಗಮನಾರ್ಹ ನೀರು ಮತ್ತು ನಿರ್ದಿಷ್ಟ ಪೋಷಕಾಂಶ ನಿರ್ವಹಣೆ ಅಗತ್ಯವಿರುತ್ತದೆ.", "fertilizers": [ { "stage": "ಅಡಿಗೊಬ್ಬರ (ನಾಟಿ ಮಾಡುವಾಗ)", "recommendation": "ಪ್ರತಿ ಎಕರೆಗೆ 25 ಕೆಜಿ ಯೂರಿಯಾ, 150 ಕೆಜಿ ಸಿಂಗಲ್ ಸೂಪರ್ ಫಾಸ್ಫೇಟ್ (SSP), ಮತ್ತು 40 ಕೆಜಿ ಮ್ಯೂರಿಯೇಟ್ ಆಫ್ ಪೊಟ್ಯಾಶ್ (MOP) ಹಾಕಿ." }, { "stage": "ಮೇಲು ಗೊಬ್ಬರ (25-30 ದಿನಗಳ ನಂತರ)", "recommendation": "ಪ್ರತಿ ಎಕರೆಗೆ 40 ಕೆಜಿ ಯೂರಿಯಾ ಹಾಕಿ." }, { "stage": "ತೆನೆ ಬರುವ ಹಂತ (50-55 ದಿನಗಳ ನಂತರ)", "recommendation": "ಪ್ರತಿ ಎಕರೆಗೆ 40 ಕೆಜಿ ಯೂರಿಯಾ ಮತ್ತು 25 ಕೆಜಿ MOP ಹಾಕಿ." } ], "pesticides": [ { "problem": "ಕಾಂಡ ಕೊರಕ", "chemical": "ಕಾರ್ಟಾಪ್ ಹೈಡ್ರೋಕ್ಲೋರೈಡ್ 4% ಜಿಆರ್", "dosage_per_acre": "8-10 ಕೆಜಿ", "application": "ಗದ್ದೆಯಲ್ಲಿ 2-3 ಇಂಚು ನಿಂತಿರುವ ನೀರಿನಲ್ಲಿ ಹರಳುಗಳನ್ನು ಸಮವಾಗಿ ಹರಡಿ." }, { "problem": "ಕಂದು ಜಿಗಿ ಹುಳು (BPH)", "chemical": "ಪೈಮೆಟ್ರೋಜೈನ್ 50% ಡಬ್ಲ್ಯೂಜಿ", "dosage_per_acre": "120 ಗ್ರಾಂ", "application": "200 ಲೀಟರ್ ನೀರಿನಲ್ಲಿ ಬೆರೆಸಿ, ಸಸ್ಯಗಳ ಬುಡಕ್ಕೆ ಗಮನಹರಿಸಿ ಚೆನ್ನಾಗಿ ಸಿಂಪಡಿಸಿ." } ] },
+                "ml": { "description": "നെല്ല് ഒരു പ്രധാന ഭക്ഷ്യവിളയാണ്, ഉയർന്ന വിളവിന് കാര്യമായ ജലവും പ്രത്യേക പോഷക പരിപാലനവും ആവശ്യമാണ്.", "fertilizers": [ { "stage": "അടിവളം (ഞാറ് നടുന്ന സമയത്ത്)", "recommendation": "ഏക്കറിന് 25 കിലോ യൂറിയ, 150 കിലോ സിംഗിൾ സൂപ്പർ ഫോസ്ഫേറ്റ് (SSP), 40 കിലോ മ്യൂറിയേറ്റ് ഓഫ് പൊട്ടാഷ് (MOP) എന്നിവ ചേർക്കുക." }, { "stage": "മേൽവളം (25-30 ദിവസത്തിന് ശേഷം)", "recommendation": "ഏക്കറിന് 40 കിലോ യൂറിയ ചേർക്കുക." }, { "stage": "കതിർ വരുന്ന ഘട്ടം (50-55 ദിവസത്തിന് ശേഷം)", "recommendation": "ഏക്കറിന് 40 കിലോ യൂറിയയും 25 കിലോ MOP-യും ചേർക്കുക." } ], "pesticides": [ { "problem": "തണ്ടുതുരപ്പൻ പുഴു", "chemical": "കാർട്ടാപ്പ് ഹൈഡ്രോക്ലോറൈഡ് 4% ജിആർ", "dosage_per_acre": "8-10 കിലോ", "application": "വയലിൽ 2-3 ഇഞ്ച് വെള്ളത്തിൽ തരികൾ തുല്യമായി വിതറുക." }, { "problem": "തവിട്ടുനിറമുള്ള ചാഴി (BPH)", "chemical": "പൈമെട്രോസൈൻ 50% ഡബ്ല്യുജി", "dosage_per_acre": "120 ഗ്രാം", "application": "200 ലിറ്റർ വെള്ളത്തിൽ കലർത്തി, ചെടികളുടെ ചുവട്ടിൽ ശ്രദ്ധ കേന്ദ്രീകരിച്ച് നന്നായി തളിക്കുക." } ] }
+            },
+            "maize": {
+                "image_url": "https://cdn-icons-png.flaticon.com/512/1147/1147593.png",
+                "en": { "description": "Maize (corn) is a versatile crop used for food and animal feed. It requires well-drained soil and is sensitive to water-logging.", "fertilizers": [ { "stage": "Basal Dose (at sowing)", "recommendation": "Apply 40 kg Urea, 200 kg SSP, and 50 kg MOP per acre. Mix well in soil." }, { "stage": "Knee-High Stage (25-30 days)", "recommendation": "Top dress with 50 kg of Urea per acre." }, { "stage": "Tasseling Stage (45-50 days)", "recommendation": "Top dress with another 50 kg of Urea per acre." } ], "pesticides": [ { "problem": "Fall Armyworm", "chemical": "Emamectin Benzoate 5% SG", "dosage_per_acre": "80 g", "application": "Mix with 200 liters of water and spray into the whorl of the plant." }, { "problem": "Stem Borer", "chemical": "Thiamethoxam 12.6% + Lambda Cyhalothrin 9.5% ZC", "dosage_per_acre": "50 ml", "application": "Mix with 200 liters of water and spray over the crop." } ] },
+                "hi": { "description": "मक्का (भुट्टा) भोजन और पशु चारे के लिए उपयोग की जाने वाली एक बहुमुखी फसल है। इसे अच्छी जल निकासी वाली मिट्टी की आवश्यकता होती है और यह जल-जमाव के प्रति संवेदनशील है।", "fertilizers": [ { "stage": "बुनियादी खुराक (बुवाई के समय)", "recommendation": "प्रति एकड़ 40 किलो यूरिया, 200 किलो एसएसपी, और 50 किलो एमओपी डालें। मिट्टी में अच्छी तरह मिलाएं।" }, { "stage": "घुटने तक की अवस्था (25-30 दिन)", "recommendation": "प्रति एकड़ 50 किलो यूरिया के साथ टॉप ड्रेसिंग करें।" }, { "stage": "फूल आने की अवस्था (45-50 दिन)", "recommendation": "प्रति एकड़ 50 किलो यूरिया के साथ फिर से टॉप ड्रेसिंग करें।" } ], "pesticides": [ { "problem": "फॉल आर्मीवर्म", "chemical": "इमामेक्टिन बेंजोएट 5% एसजी", "dosage_per_acre": "80 ग्राम", "application": "200 लीटर पानी में मिलाकर पौधे के ऊपरी भाग में स्प्रे करें।" }, { "problem": "तना छेदक", "chemical": "थियामेथोक्साम 12.6% + लैम्ब्डा साइहलोथ्रिन 9.5% जेडसी", "dosage_per_acre": "50 मिली", "application": "200 लीटर पानी में मिलाकर फसल पर स्प्रे करें।" } ] },
+                "te": { "description": "మొక్కజొన్న (జొన్న) ఆహారం మరియు పశువుల దాణా కోసం ఉపయోగించే బహుముఖ పంట. దీనికి బాగా నీరు పోయే నేల అవసరం మరియు నీటి నిల్వకు సున్నితంగా ఉంటుంది.", "fertilizers": [ { "stage": "అడుగు మందు (విత్తేటప్పుడు)", "recommendation": "ఎకరానికి 40 కిలోల యూరియా, 200 కిలోల ఎస్‌ఎస్‌పి, మరియు 50 కిలోల ఎంఓపి వేయాలి. మట్టిలో బాగా కలపాలి." }, { "stage": "మోకాలి ఎత్తు దశ (25-30 రోజులు)", "recommendation": "ఎకరానికి 50 కిలోల యూరియాతో పైపాటుగా వేయాలి." }, { "stage": "పూత దశ (45-50 రోజులు)", "recommendation": "ఎకరానికి మరో 50 కిలోల యూరియాతో పైపాటుగా వేయాలి." } ], "pesticides": [ { "problem": "ఫాల్ ఆర్మీవార్మ్", "chemical": "ఇమామెక్టిన్ బెంజోయేట్ 5% ఎస్జి", "dosage_per_acre": "80 గ్రాములు", "application": "200 లీటర్ల నీటిలో కలిపి మొక్కల సుడిలో పిచికారీ చేయాలి." }, { "problem": "కాండం తొలిచే పురుగు", "chemical": "థయామెథోక్సామ్ 12.6% + లాంబ్డా సైహలోథ్రిన్ 9.5% జెడ్‌సి", "dosage_per_acre": "50 మి.లీ", "application": "200 లీటర్ల నీటిలో కలిపి పంటపై పిచికారీ చేయాలి." } ] }
+            },
+            "coffee": {
+                "image_url": "https://cdn-icons-png.flaticon.com/512/751/751621.png",
+                "en": { "description": "Coffee is a major plantation crop, grown in highland regions for its beans. It requires acidic, well-drained soil and shade.", "fertilizers": [ { "stage": "Pre-blossom (Feb-Mar)", "recommendation": "Apply 30 kg N, 30 kg P₂O₅, and 40 kg K₂O per acre." }, { "stage": "Post-blossom (May-June)", "recommendation": "Apply 40 kg N and 40 kg K₂O per acre." }, { "stage": "Post-monsoon (Sept-Oct)", "recommendation": "Apply 30 kg N, 30 kg P₂O₅, and 30 kg K₂O per acre." } ], "pesticides": [ { "problem": "White Stem Borer", "chemical": "No effective chemical spray", "dosage_per_acre": "N/A", "application": "Trace, uproot, and burn infested plants. Swab the main stem with a clay slurry or approved solution to prevent egg-laying." }, { "problem": "Coffee Leaf Rust", "chemical": "Bordeaux Mixture 1%", "dosage_per_acre": "As required", "application": "Spray pre-monsoon (May-June) and post-monsoon (Sept-Oct) as a protective measure." } ] }
+            },
+            "kidneybeans": {
+                "image_url": "https://cdn-icons-png.flaticon.com/512/372/372954.png",
+                "en": { "description": "Kidney beans (Rajma) are a popular legume, grown for their edible seeds. They prefer a mild climate and well-drained soil.", "fertilizers": [ { "stage": "Basal Dose (at sowing)", "recommendation": "Apply 12 kg of Nitrogen (N), 24 kg of Phosphorus (P₂O₅), and 12 kg of Potassium (K₂O) per acre." }, { "stage": "Pre-flowering Stage (25 days after sowing)", "recommendation": "Top dress with 12 kg of Nitrogen (Urea) per acre." } ], "pesticides": [ { "problem": "Bean Aphids", "chemical": "Imidacloprid 17.8% SL", "dosage_per_acre": "50 ml", "application": "Mix with 150-200 liters of water and spray when insects appear." }, { "problem": "Anthracnose", "chemical": "Mancozeb 75% WP", "dosage_per_acre": "500-600 g", "application": "Mix with 200 liters of water and spray at the onset of the disease. Repeat after 10-15 days if necessary." } ] },
+                "hi": { "description": "राजमा (किडनी बीन्स) एक लोकप्रिय फली है, जिसे इसके खाद्य बीजों के लिए उगाया जाता है। यह हल्का मौसम और अच्छी जल निकासी वाली मिट्टी पसंद करता है।", "fertilizers": [ { "stage": "बुनियादी खुराक (बुवाई के समय)", "recommendation": "प्रति एकड़ 12 किलो नाइट्रोजन (N), 24 किलो फास्फोरस (P₂O₅), और 12 किलो पोटेशियम (K₂O) डालें।" }, { "stage": "फूल आने से पहले की अवस्था (बुवाई के 25 दिन बाद)", "recommendation": "प्रति एकड़ 12 किलो नाइट्रोजन (यूरिया) के साथ टॉप ड्रेसिंग करें।" } ], "pesticides": [ { "problem": "बीन एफिड्स", "chemical": "इमिडाक्लोप्रिड 17.8% एसएल", "dosage_per_acre": "50 मिली", "application": "150-200 लीटर पानी में मिलाकर कीड़े दिखाई देने पर स्प्रे करें।" }, { "problem": "एन्थ्रेक्नोज", "chemical": "मैनकोज़ेब 75% डब्ल्यूपी", "dosage_per_acre": "500-600 ग्राम", "application": "200 लीटर पानी में मिलाकर रोग की शुरुआत में स्प्रे करें। यदि आवश्यक हो तो 10-15 दिनों के बाद दोहराएं।" } ] },
+                "te": { "description": "రాజ్మా (కిడ్నీ బీన్స్) ఒక ప్రసిద్ధ చిక్కుడు, దీనిని తినదగిన విత్తనాల కోసం పండిస్తారు. ఇది తేలికపాటి వాతావరణం మరియు బాగా నీరు పోయే నేలను ఇష్టపడుతుంది.", "fertilizers": [ { "stage": "అడుగు మందు (విత్తేటప్పుడు)", "recommendation": "ఎకరానికి 12 కిలోల నత్రజని (N), 24 కిలోల భాస్వరం (P₂O₅), మరియు 12 కిలోల పొటాషియం (K₂O) వేయాలి." }, { "stage": "పూతకు ముందు దశ (విత్తిన 25 రోజుల తర్వాత)", "recommendation": "ఎకరానికి 12 కిలోల నత్రజని (యూరియా)తో పైపాటుగా వేయాలి." } ], "pesticides": [ { "problem": "బీన్ అఫిడ్స్", "chemical": "ఇమిడాక్లోప్రిడ్ 17.8% ఎస్ఎల్", "dosage_per_acre": "50 మి.లీ", "application": "150-200 లీటర్ల నీటిలో కలిపి కీటకాలు కనిపించినప్పుడు పిచికారీ చేయాలి." }, { "problem": "ఆంత్రాక్నోస్", "chemical": "మాంకోజెబ్ 75% డబ్ల్యుపి", "dosage_per_acre": "500-600 గ్రాములు", "application": "200 లీటర్ల నీటిలో కలిపి వ్యాధి ప్రారంభంలో పిచికారీ చేయాలి. అవసరమైతే 10-15 రోజుల తర్వాత పునరావృతం చేయండి." } ] }
+            },
+            "chickpea": {
+                "image_url": "https://cdn-icons-png.flaticon.com/512/8213/8213501.png",
+                "en": { "description": "Chickpea (Gram) is a major pulse crop, valued for its high protein content. It is a hardy, cool-season crop.", "fertilizers": [ { "stage": "Basal Dose", "recommendation": "Apply 8 kg N, 16 kg P, and 8 kg K per acre." } ], "pesticides": [ { "problem": "Pod Borer", "chemical": "Emamectin Benzoate 5% SG", "dosage_per_acre": "88 g", "application": "Spray at flowering and pod formation." } ] },
+                "hi": { "description": "चना (ग्राम) एक प्रमुख दलहनी फसल है, जो अपने उच्च प्रोटीन सामग्री के लिए मूल्यवान है।", "fertilizers": [ { "stage": "बुनियादी खुराक", "recommendation": "प्रति एकड़ 8 किलो N, 16 किलो P, और 8 किलो K डालें।" } ], "pesticides": [ { "problem": "फली छेदक", "chemical": "इमामेक्टिन बेंजोएट 5% एसजी", "dosage_per_acre": "88 ग्राम", "application": "फूल आने और फली बनने पर स्प्रे करें।" } ] },
+                "te": { "description": "శనగ (గ్రామ్) ఒక ప్రధాన పప్పుధాన్యాల పంట.", "fertilizers": [ { "stage": "అడుగు మందు", "recommendation": "ఎకరానికి 8 కిలోల N, 16 కిలోల P, మరియు 8 కిలోల K వేయాలి." } ], "pesticides": [ { "problem": "కాయ తొలిచే పురుగు", "chemical": "ఇమామెక్టిన్ బెంజోయేట్ 5% ఎస్జి", "dosage_per_acre": "88 గ్రాములు", "application": "పూత మరియు కాయ ఏర్పడే దశలలో పిచికారీ చేయాలి." } ] }
+            },
+            "banana": {
+                "image_url": "https://cdn-icons-png.flaticon.com/512/2909/2909761.png",
+                "en": { "description": "Banana is a tropical fruit crop that requires high moisture and is a heavy feeder of nutrients.", "fertilizers": [ { "stage": "Per Plant (split doses)", "recommendation": "Total annual dose per plant: 200g N, 60-70g P₂O₅, and 300g K₂O." } ], "pesticides": [ { "problem": "Sigatoka Leaf Spot", "chemical": "Propiconazole 25% EC", "dosage_per_acre": "200 ml", "application": "Spray on foliage." } ] },
+                "hi": { "description": "केला एक उष्णकटिबंधीय फल फसल है जिसे उच्च नमी और पोषक तत्वों की भारी खुराक की आवश्यकता होती है।", "fertilizers": [ { "stage": "प्रति पौधा", "recommendation": "प्रति पौधा कुल वार्षिक खुराक: 200 ग्राम N, 60-70 ग्राम P, और 300 ग्राम K." } ], "pesticides": [ { "problem": "सिगाटोका पत्ती धब्बा", "chemical": "प्रोपिकोनाज़ोल 25% ईसी", "dosage_per_acre": "200 मिली", "application": "पत्तियों पर स्प्रे करें।" } ] }
+            },
+            "mango": {
+                "image_url": "https://cdn-icons-png.flaticon.com/512/2909/2909846.png",
+                "en": { "description": "Mango, the 'King of Fruits', is a tropical tree cultivated for its edible fruit.", "fertilizers": [{"stage": "Per Year Per Plant", "recommendation": "Apply 70-80 kg FYM, 1.5 kg N, 1 kg P, 1.5 kg K in split doses."}], "pesticides": [{"problem": "Hopper", "chemical": "Imidacloprid", "dosage_per_acre": "3ml/10L", "application": "Spray before flowering."}] },
+                "hi": { "description": "आम, 'फलों का राजा', एक उष्णकटिबंधीय पेड़ है।", "fertilizers": [{"stage": "प्रति वर्ष प्रति पौधा", "recommendation": "70-80 किलो खाद, 1.5 किलो N, 1 किलो P, 1.5 किलो K डालें।"}], "pesticides": [{"problem": "हॉपर", "chemical": "इमिडाक्लोप्रिड", "dosage_per_acre": "3मिली/10ली", "application": "फूल आने से पहले स्प्रे करें।"}] }
+            },
+            "pigeonpeas": {
+                "image_url": "https://cdn-icons-png.flaticon.com/512/766/766023.png",
+                "en": { "description": "Pigeonpea (Arhar) is a drought-tolerant legume.", "fertilizers": [{"stage": "Basal", "recommendation": "8 kg N, 16 kg P per acre."}], "pesticides": [{"problem": "Pod Borer", "chemical": "Chlorantraniliprole", "dosage_per_acre": "60ml", "application": "Spray at 50% flowering."}] },
+                "hi": { "description": "अरहर (तुअर) एक सूखा-सहिष्णु फली है।", "fertilizers": [{"stage": "बुनियादी", "recommendation": "8 किलो N, 16 किलो P प्रति एकड़।"}], "pesticides": [{"problem": "फली छेदक", "chemical": "क्लोरेंट्रानिलिप्रोल", "dosage_per_acre": "60 मिली", "application": "50% फूल आने पर स्प्रे करें।"}] }
+            }
+            // Add other crops similarly if needed
+        };
+
+        let currentCrop = 'rice';
+        let currentLang = 'en';
+
+        window.onload = function() {
+            // 1. Get Crop from URL
+            const params = new URLSearchParams(window.location.search);
+            let cropParam = params.get('crop');
+            
+            if (cropParam) {
+                // Normalize: remove "Simulated" and lowercase
+                cropParam = cropParam.toLowerCase().replace(" (simulated)", "").trim();
+                
+                // Match against DB keys
+                if (cropDB[cropParam]) {
+                    currentCrop = cropParam;
+                }
+            }
+
+            renderPage();
+        };
+
+        function setLang(lang) {
+            currentLang = lang;
+            
+            // Highlight Button
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            renderPage();
+        }
+
+        function renderPage() {
+            const data = cropDB[currentCrop];
+            if (!data) return;
+
+            // 1. Set Image and Title
+            document.getElementById('crop-image').src = data.image_url;
+            document.getElementById('crop-title').innerText = currentCrop.charAt(0).toUpperCase() + currentCrop.slice(1);
+
+            // 2. Get Language Data (Fallback to English if missing)
+            let langData = data[currentLang] || data['en'];
+            if (!langData) langData = data['en']; // Hard fallback
+
+            // 3. Description
+            document.getElementById('crop-desc').innerText = langData.description;
+
+            // 4. Render Fertilizers
+            const fertContainer = document.getElementById('fertilizer-list');
+            fertContainer.innerHTML = '';
+            if (langData.fertilizers) {
+                langData.fertilizers.forEach(item => {
+                    fertContainer.innerHTML += `
+                        <div class="fert-item">
+                            <div class="fert-stage">${item.stage}</div>
+                            <div class="fert-desc">${item.recommendation}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                fertContainer.innerHTML = '<p class="text-muted">No specific data for this language.</p>';
+            }
+
+            // 5. Render Pesticides
+            const pestContainer = document.getElementById('pesticide-list');
+            pestContainer.innerHTML = '';
+            if (langData.pesticides) {
+                langData.pesticides.forEach(item => {
+                    pestContainer.innerHTML += `
+                        <div class="pest-item">
+                            <div class="d-flex justify-content-between">
+                                <span class="pest-name">${item.problem}</span>
+                                <span class="badge bg-danger">Toxic</span>
+                            </div>
+                            <div class="mt-2 text-white"><small>Chemical:</small> <span class="pest-chem">${item.chemical}</span></div>
+                            <div class="text-white"><small>Dose:</small> ${item.dosage_per_acre}</div>
+                            <div class="mt-2 text-muted small"><i class="fas fa-info-circle me-1"></i> ${item.application}</div>
+                        </div>
+                    `;
+                });
+            }
+        }
+    </script>
+</body>
+</html>
