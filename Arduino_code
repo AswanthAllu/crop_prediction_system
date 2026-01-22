@@ -1,0 +1,82 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
+#include <DHT.h>
+
+const char* ssid = "Aswanth";
+const char* password = "Aswanth@1401";
+const char* serverURL = "http://10.235.143.76:5001/update_sensors";
+
+#define DHT_PIN 4
+#define DHT_TYPE DHT11
+#define PH_PIN 35
+#define SOIL_PIN 34
+
+DHT dht(DHT_PIN, DHT_TYPE);
+
+const float adcMax = 4095.0;
+const float vRef = 3.3;
+const float ph_slope = 3.06;
+const float ph_intercept = 1.46;
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+
+  pinMode(PH_PIN, INPUT);
+  pinMode(SOIL_PIN, INPUT);
+
+  WiFi.begin(ssid, password);
+
+  int tryCount = 0;
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    tryCount++;
+    if (tryCount > 20) break;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println(WiFi.localIP());
+  }
+}
+
+void loop() {
+  if (WiFi.status() == WL_CONNECTED) {
+    float temp = dht.readTemperature();
+    float hum = dht.readHumidity();
+
+    if (isnan(temp) || isnan(hum)) {
+      temp = 0.0;
+      hum = 0.0;
+    }
+
+    int soil_raw = analogRead(SOIL_PIN);
+    int soil_percent = map(soil_raw, 4095, 1500, 0, 100);
+    soil_percent = constrain(soil_percent, 0, 100);
+
+    int ph_raw = analogRead(PH_PIN);
+    float vAdc = (ph_raw / adcMax) * vRef;
+    float vModule = vAdc * ((3.3 + 6.8) / 6.8);
+    float ph_val = (ph_slope * vModule) + ph_intercept;
+    ph_val = constrain(ph_val, 0, 14);
+
+    StaticJsonDocument<300> doc;
+    doc["temp"] = temp;
+    doc["humidity"] = hum;
+    doc["soil_moisture"] = soil_percent;
+    doc["ph"] = ph_val;
+
+    String payload;
+    serializeJson(doc, payload);
+
+    HTTPClient http;
+    http.begin(serverURL);
+    http.addHeader("Content-Type", "application/json");
+    http.POST(payload);
+    http.end();
+  } else {
+    WiFi.begin(ssid, password);
+  }
+
+  delay(2000);
+}
