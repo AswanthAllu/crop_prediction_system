@@ -3,8 +3,8 @@
 #include <ArduinoJson.h>
 #include <DHT.h>
 
-const char* ssid = "Aswanth";
-const char* password = "Aswanth@1401";
+const char* ssid = "";
+const char* password = "";
 const char* serverURL = "http://10.235.143.76:5001/update_sensors";
 
 #define DHT_PIN 4
